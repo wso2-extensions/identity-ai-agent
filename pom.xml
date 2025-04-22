@@ -32,8 +32,8 @@
     <artifactId>identity-agent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>WSO2 AI Agent module</name>
-    <url>http://wso2.org</url>
+    <name>WSO2 AI Agent Identity module</name>
+    <url>https://wso2.com</url>
 
     <modules>
         <module>components/org.wso2.carbon.identity.agent.core</module>

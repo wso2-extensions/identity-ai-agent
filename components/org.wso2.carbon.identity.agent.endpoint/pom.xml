@@ -33,7 +33,7 @@
     <packaging>war</packaging>
     <name>WSO2 AI Agent Endpoints</name>
     <description>Endpoints for AI Agents</description>
-    <url>http://wso2.org</url>
+    <url>https://wso2.com</url>
 
     <dependencies>
         <dependency>

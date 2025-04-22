@@ -33,7 +33,7 @@
     <packaging>bundle</packaging>
     <name>WSO2 AIAgent Core</name>
     <description>AI Agent Core</description>
-    <url>http://wso2.org</url>
+    <url>https://wso2.com</url>
 
     <dependencies>
         <dependency>
@@ -181,7 +181,6 @@
                 <executions>
                     <execution>
                         <id>copy-resources</id>
-                        <!-- here the phase you need -->
                         <phase>validate</phase>
                         <goals>
                             <goal>copy-resources</goal>

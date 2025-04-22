@@ -24,6 +24,9 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static org.wso2.carbon.identity.agent.core.constant.AgentConstant.AGENT_ID;
+import static org.wso2.carbon.identity.agent.core.constant.AgentConstant.AGENT_SECRET;
+
 /**
  * AgentTokenRequest holds all agent auth token request parameters.
  */
@@ -41,16 +44,19 @@ public class AgentTokenRequest {
     }
 
     public String getAgentId() {
+
         String[] credentials = AgentUtil.decodeAuthorizationHeader(this.request.getHeader("Authorization"));
-        return credentials != null ? credentials[0] : this.getParam("agent_id");
+        return credentials != null ? credentials[0] : this.getParam(AGENT_ID);
     }
 
     public String getAgentSecret() {
+
         String[] credentials = AgentUtil.decodeAuthorizationHeader(this.request.getHeader("Authorization"));
-        return credentials != null ? credentials[1] : this.getParam("agent_secret");
+        return credentials != null ? credentials[1] : this.getParam(AGENT_SECRET);
     }
 
     public Set<String> getScopes() {
+
         String scopes = this.getParam("scope");
         return AgentUtil.decodeScopes(scopes);
     }

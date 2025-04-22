@@ -21,7 +21,6 @@ package org.wso2.carbon.identity.agent.endpoint.token;
 import com.google.gson.JsonObject;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.agent.core.model.AgentTokenRequest;
 import org.wso2.carbon.identity.agent.endpoint.exception.AgentAuthException;
@@ -35,9 +34,7 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenRespDTO;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -55,7 +52,6 @@ public class AgentTokenEndpoint {
     private static final String BEARER = "Bearer";
     private static final String PASSWORD_GRANT = "password";
 
-
     @POST
     @Path("/")
     @Consumes("application/x-www-form-urlencoded")
@@ -65,8 +61,7 @@ public class AgentTokenEndpoint {
             throws AgentAuthException {
 
         AgentTokenRequest agentTokenRequest = new AgentTokenRequest(request);
-        OAuth2AccessTokenReqDTO tokenReqDTO = buildAccessTokenReqDTO(agentTokenRequest,
-                (HttpServletRequestWrapper) request, (HttpServletResponseWrapper) response);
+        OAuth2AccessTokenReqDTO tokenReqDTO = buildAccessTokenReqDTO(agentTokenRequest);
         OAuth2AccessTokenRespDTO oauth2AccessTokenResp = OAuth2ServiceFactory.getOAuth2Service()
                 .issueAccessToken(tokenReqDTO);
 
@@ -77,8 +72,14 @@ public class AgentTokenEndpoint {
         }
     }
 
-    private OAuth2AccessTokenReqDTO buildAccessTokenReqDTO(AgentTokenRequest request, HttpServletRequestWrapper
-            httpServletRequestWrapper, HttpServletResponseWrapper httpServletResponseWrapper) throws
+    /**
+     * Build access token request.
+     *
+     * @param request AgentTokenRequest
+     * @return OAuth2AccessTokenReqDTO
+     * @throws AgentAuthException if error at request building
+     */
+    private OAuth2AccessTokenReqDTO buildAccessTokenReqDTO(AgentTokenRequest request) throws
             AgentAuthException {
 
         OAuth2AccessTokenReqDTO tokenReqDTO = new OAuth2AccessTokenReqDTO();
@@ -91,9 +92,6 @@ public class AgentTokenEndpoint {
         tokenReqDTO.setClientId(oAuthAppDO.getOauthConsumerKey());
         tokenReqDTO.setClientSecret(oAuthAppDO.getOauthConsumerSecret());
         tokenReqDTO.setScope(request.getScopes().toArray(new String[0]));
-        // Set the request wrapper so we can get remote information later.
-        tokenReqDTO.setHttpServletRequestWrapper(httpServletRequestWrapper);
-        tokenReqDTO.setHttpServletResponseWrapper(httpServletResponseWrapper);
 
         tokenReqDTO.setResourceOwnerUsername(request.getAgentId());
         tokenReqDTO.setResourceOwnerPassword(request.getAgentSecret());
@@ -102,6 +100,12 @@ public class AgentTokenEndpoint {
         return tokenReqDTO;
     }
 
+    /**
+     * Build token response.
+     *
+     * @param oauth2AccessTokenResp OAuth2AccessTokenRespDTO
+     * @return Token Response
+     */
     private Response buildTokenResponse(OAuth2AccessTokenRespDTO oauth2AccessTokenResp) {
 
         if (StringUtils.isBlank(oauth2AccessTokenResp.getTokenType())) {
@@ -166,15 +170,5 @@ public class AgentTokenEndpoint {
         }
 
         return respBuilder.entity(jsonBuilder.toString()).build();
-    }
-
-    public static String getRealmInfo() {
-
-        return "Basic realm=" + getHostName();
-    }
-
-    public static String getHostName() {
-
-        return ServerConfiguration.getInstance().getFirstProperty("HostName");
     }
 }
