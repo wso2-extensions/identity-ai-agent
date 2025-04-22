@@ -37,11 +37,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.orbit.org.apache.oltu.oauth2</groupId>
-            <artifactId>oltu</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <scope>provided</scope>
@@ -81,17 +76,6 @@
                             org.w3c.dom,
 
                             org.apache.juli.logging; resolution:=optional,
-
-                            org.apache.oltu.*; version="${oltu.package.import.version.range}",
-
-                            org.apache.axiom.om; version="${axiom.osgi.version.range}",
-                            org.apache.axiom.util.base64; version="${axiom.osgi.version.range}",
-
-                            org.apache.axis2.context; version="${axis2.osgi.version.range}",
-                            org.apache.axis2.util; version="${axis2.osgi.version.range}",
-
-                            org.apache.catalina.*; version="${tomcat.wso2.imp.pkg.version.range}",
-                            org.apache.tomcat.*; version="${tomcat.wso2.imp.pkg.version.range}",
 
                             org.apache.commons.codec.binary; version="${commons-codec.wso2.osgi.version.range}",
                             org.apache.commons.collections.map; version="${commons-collections.wso2.osgi.version.range}",

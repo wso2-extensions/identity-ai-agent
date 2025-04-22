@@ -29,12 +29,12 @@ import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
  */
 public class EndpointUtil {
 
-    private static final String AGENT_DEFAULT_OAUTH_APP_NAME = "agent_default_oauth_app";
+    private static final String AGENT_DEFAULT_CLIENT = "r93jv2sDSbz0g_C4kfc0hUe11fca";
 
     public static OAuthAppDO getAgentDefaultOAuthAppDO(String tenantDomain) throws AgentAuthException {
 
         try {
-            return OAuth2Util.getAppInformationByClientId(AGENT_DEFAULT_OAUTH_APP_NAME, tenantDomain);
+            return OAuth2Util.getAppInformationByClientId(AGENT_DEFAULT_CLIENT, tenantDomain);
         } catch (IdentityOAuth2Exception | InvalidOAuthClientException e) {
             throw new AgentAuthException("Error while retrieving the default OAuth app for agent.", e);
         }

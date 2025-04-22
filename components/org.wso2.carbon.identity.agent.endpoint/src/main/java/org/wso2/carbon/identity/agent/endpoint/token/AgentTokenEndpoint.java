@@ -18,26 +18,21 @@
 
 package org.wso2.carbon.identity.agent.endpoint.token;
 
+import com.google.gson.JsonObject;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.oltu.oauth2.as.response.OAuthASResponse;
-import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
-import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.agent.core.model.AgentTokenRequest;
 import org.wso2.carbon.identity.agent.endpoint.exception.AgentAuthException;
 import org.wso2.carbon.identity.agent.endpoint.util.EndpointUtil;
 import org.wso2.carbon.identity.agent.endpoint.util.factory.OAuth2ServiceFactory;
-import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.dao.OAuthAppDO;
 import org.wso2.carbon.identity.oauth2.ResponseHeader;
 import org.wso2.carbon.identity.oauth2.bean.OAuthClientAuthnContext;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenRespDTO;
-import org.wso2.carbon.identity.oauth2.token.handlers.response.OAuth2TokenResponse;
-
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -74,14 +69,11 @@ public class AgentTokenEndpoint {
                 (HttpServletRequestWrapper) request, (HttpServletResponseWrapper) response);
         OAuth2AccessTokenRespDTO oauth2AccessTokenResp = OAuth2ServiceFactory.getOAuth2Service()
                 .issueAccessToken(tokenReqDTO);
-        try {
-            if (oauth2AccessTokenResp.getErrorMsg() != null) {
-                return handleErrorResponse(oauth2AccessTokenResp);
-            } else {
-                return buildTokenResponse(oauth2AccessTokenResp);
-            }
-        } catch (OAuthSystemException e) {
-            throw new AgentAuthException("Error while building the token response.", e);
+
+        if (oauth2AccessTokenResp.getErrorMsg() != null) {
+            return handleErrorResponse(oauth2AccessTokenResp);
+        } else {
+            return buildTokenResponse(oauth2AccessTokenResp);
         }
     }
 
@@ -110,39 +102,36 @@ public class AgentTokenEndpoint {
         return tokenReqDTO;
     }
 
-    private Response buildTokenResponse(OAuth2AccessTokenRespDTO oauth2AccessTokenResp) throws OAuthSystemException {
+    private Response buildTokenResponse(OAuth2AccessTokenRespDTO oauth2AccessTokenResp) {
 
         if (StringUtils.isBlank(oauth2AccessTokenResp.getTokenType())) {
             oauth2AccessTokenResp.setTokenType(BEARER);
         }
 
-        OAuth2TokenResponse.OAuthTokenResponseBuilder oAuthRespBuilder = OAuth2TokenResponse
-                .tokenResponse(HttpServletResponse.SC_OK)
-                .setAccessToken(oauth2AccessTokenResp.getAccessToken())
-                .setRefreshToken(oauth2AccessTokenResp.getRefreshToken())
-                .setExpiresIn(Long.toString(oauth2AccessTokenResp.getExpiresIn()))
-                .setTokenType(oauth2AccessTokenResp.getTokenType());
+        JsonObject jsonBuilder = new JsonObject();
+        jsonBuilder.addProperty("access_token", oauth2AccessTokenResp.getAccessToken());
+        jsonBuilder.addProperty("expires_in", oauth2AccessTokenResp.getExpiresIn());
+        jsonBuilder.addProperty("token_type", oauth2AccessTokenResp.getTokenType());
 
-        oAuthRespBuilder.setScope(oauth2AccessTokenResp.getAuthorizedScopes());
+        if (StringUtils.isNotBlank(oauth2AccessTokenResp.getAuthorizedScopes())) {
+            jsonBuilder.addProperty("scope", oauth2AccessTokenResp.getAuthorizedScopes());
+        }
 
         if (oauth2AccessTokenResp.getIDToken() != null) {
-            oAuthRespBuilder.setParam(OAuthConstants.ID_TOKEN, oauth2AccessTokenResp.getIDToken());
+            jsonBuilder.addProperty(OAuthConstants.ID_TOKEN, oauth2AccessTokenResp.getIDToken());
         }
 
-        // Set custom parameters in token response if supported
-        if (MapUtils.isNotEmpty(oauth2AccessTokenResp.getParameters())) {
-            oauth2AccessTokenResp.getParameters().forEach(oAuthRespBuilder::setParam);
-        }
-
-        // Set custom parameters in token response if supported.
         if (MapUtils.isNotEmpty(oauth2AccessTokenResp.getParameterObjects())) {
-            oauth2AccessTokenResp.getParameterObjects().forEach(oAuthRespBuilder::setParam);
+            oauth2AccessTokenResp.getParameterObjects().forEach((key, value) -> {
+                if (value instanceof String) {
+                    jsonBuilder.addProperty(key, (String) value);
+                }
+            });
         }
 
-        OAuthResponse response = oAuthRespBuilder.buildJSONMessage();
         ResponseHeader[] headers = oauth2AccessTokenResp.getResponseHeaders();
         Response.ResponseBuilder respBuilder = Response
-                .status(response.getResponseStatus())
+                .status(HttpServletResponse.SC_OK)
                 .header(OAuthConstants.HTTP_RESP_HEADER_CACHE_CONTROL,
                         OAuthConstants.HTTP_RESP_HEADER_VAL_CACHE_CONTROL_NO_STORE)
                 .header(OAuthConstants.HTTP_RESP_HEADER_PRAGMA,
@@ -156,48 +145,27 @@ public class AgentTokenEndpoint {
             }
         }
 
-        return respBuilder.entity(response.getBody()).build();
+        return respBuilder.entity(jsonBuilder.toString()).build();
     }
 
-    private Response handleErrorResponse(OAuth2AccessTokenRespDTO oauth2AccessTokenResp) throws OAuthSystemException {
+    private Response handleErrorResponse(OAuth2AccessTokenRespDTO oauth2AccessTokenResp) {
 
-        // if there is an auth failure, HTTP 401 Status Code should be sent back to the client.
-        if (OAuth2ErrorCodes.INVALID_CLIENT.equals(oauth2AccessTokenResp.getErrorCode())) {
-            return handleBasicAuthFailure(oauth2AccessTokenResp.getErrorMsg());
-        } else {
-            // Otherwise send back HTTP 400 Status Code
-            OAuthResponse response = OAuthASResponse
-                    .errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                    .setError(oauth2AccessTokenResp.getErrorCode())
-                    .setErrorDescription(oauth2AccessTokenResp.getErrorMsg())
-                    .buildJSONMessage();
+        JsonObject jsonBuilder = new JsonObject();
+        jsonBuilder.addProperty("error", oauth2AccessTokenResp.getErrorCode());
+        jsonBuilder.addProperty("error_description", oauth2AccessTokenResp.getErrorMsg());
 
-            ResponseHeader[] headers = oauth2AccessTokenResp.getResponseHeaders();
-            Response.ResponseBuilder respBuilder = Response.status(response.getResponseStatus());
+        ResponseHeader[] headers = oauth2AccessTokenResp.getResponseHeaders();
+        Response.ResponseBuilder respBuilder = Response.status(HttpServletResponse.SC_BAD_REQUEST);
 
-            if (headers != null) {
-                for (ResponseHeader header : headers) {
-                    if (header != null) {
-                        respBuilder.header(header.getKey(), header.getValue());
-                    }
+        if (headers != null) {
+            for (ResponseHeader header : headers) {
+                if (header != null) {
+                    respBuilder.header(header.getKey(), header.getValue());
                 }
             }
-            return respBuilder.entity(response.getBody()).build();
-        }
-    }
-
-    private Response handleBasicAuthFailure(String errorMessage) throws OAuthSystemException {
-
-        if (StringUtils.isBlank(errorMessage)) {
-            errorMessage = "Agent Authentication Failed.";
         }
 
-        OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
-                .setError(OAuth2ErrorCodes.INVALID_CLIENT)
-                .setErrorDescription(errorMessage).buildJSONMessage();
-        return Response.status(response.getResponseStatus())
-                .header(OAuthConstants.HTTP_RESP_HEADER_AUTHENTICATE, getRealmInfo())
-                .entity(response.getBody()).build();
+        return respBuilder.entity(jsonBuilder.toString()).build();
     }
 
     public static String getRealmInfo() {
