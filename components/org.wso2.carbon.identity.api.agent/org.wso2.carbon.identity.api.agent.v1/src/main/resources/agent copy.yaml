@@ -1,0 +1,690 @@
+openapi: 3.0.3
+info:
+  title: Agent Management API
+  description: API for creating, viewing, updating, deleting and listing Agents.
+  version: 1.0.0
+servers:
+  - url: https://api.asgardeo.io/t/{tenant-domain}/api/agent/v1
+
+security:
+  - OAuth2: []
+
+paths:
+  /agents:
+    get:
+      tags:
+        - Agents
+      summary: List all Agents
+      description: Returns a list of all agents. <b>Scope required:</b> `internal_org_agent_mgt_read`
+      operationId: listAgents
+      responses:
+        '200':
+          description: A list of agents.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Agent'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Agents
+      summary: Create a new Agent
+      description: Creates a new agent. Allows requesting server-side credential generation.
+          <b>Scope required:</b> `internal_org_agent_mgt_create`
+      operationId: createAgent
+      security:
+        - OAuth2:
+            - agents:write
+      requestBody:
+        required: true
+        description: Agent object to be created.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentCreateRequest'
+      responses:
+        '201':
+          description: Agent created successfully. The response includes the full Agent object, including generated credentials if requested.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+              examples:
+                secretCredentialExample:
+                  summary: Example of a created Agent with a SECRET credential
+                  value:
+                    id: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    name: "Gardio Hotel Booking Assistant"
+                    description: "Helps users interact with the Gardio Hotels booking system."
+                    version: "1.2.0"
+                    url: "https://api.gardiohotels.com/booking/v1"
+                    owner: "f0e9d8c7-b6a5-4321-fedc-ba9876543210"
+                    createdAt: "2023-10-01T12:00:00Z"
+                    updatedAt: "2023-10-01T12:00:00Z"
+                    credential:
+                      credentialType: SECRET
+                      secretValue: "s3cr3t-p@ssw0rd"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /agents/{agentId}:
+    parameters:
+      - name: agentId
+        in: path
+        required: true
+        description: ID of the agent to operate on.
+        schema:
+          type: string
+          format: uuid
+          example: 'a1b2c3d4-e5f6-7890-1234-567890abcdef'
+
+    get:
+      tags:
+        - Agents
+      summary: Get a specific Agent by ID
+      description: Returns the details of a specific agent.
+          <b>Scope required:</b> `internal_org_agent_mgt_read`
+      operationId: getAgentById
+      security:
+        - OAuth2:
+            - agents:read
+      responses:
+        '200':
+          description: Agent details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      tags:
+        - Agents
+      summary: Update an existing Agent
+      description: Updates the properties of an existing agent. Only include fields to be changed.
+          <b>Scope required:</b> `internal_org_agent_mgt_update`
+      operationId: updateAgent
+      security:
+        - OAuth2:
+            - agents:write
+      requestBody:
+        required: true
+        description: Agent properties to update. Only include fields to be changed.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentUpdateRequest'
+      responses:
+        '200':
+          description: Agent updated successfully. Returns the updated agent object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      tags:
+        - Agents
+      summary: Delete an Agent
+      description: Deletes a specific agent by ID. <b>Scope required:</b> `internal_org_agent_mgt_delete`
+      operationId: deleteAgent
+      security:
+        - OAuth2:
+            - agents:delete
+      responses:
+        '204':
+          description: Agent deleted successfully. No content.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /agents/{agent-id}/credentials:
+      parameters:
+        - name: agent-id
+          in: path
+          required: true
+          description: The unique identifier of the AI Agent.
+          schema:
+            type: string
+            example: "agent-f3b4c1a9"
+      # GET operation removed
+      post:
+        tags:
+          - Agent Credentials
+        summary: Add a new credential for an agent
+        description: Creates and associates a new credential with the specified AI Agent. The specific type and details are determined by the request body based on `credentialType`.
+           <b>Scope required:</b> `internal_org_agent_mgt_update`
+        operationId: addAgentCredential
+        requestBody:
+          description: The credential object to add. The `credentialType` determines the required fields.
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialInput' # Use the input schema
+              examples:
+                secretExample:
+                  summary: Example of adding a Secret
+                  value:
+                    name: "Database Password"
+                    credentialDetails:
+                      credentialType: SECRET
+                      secretValue: "s3cr3t-p@ssw0rd"
+                      description: "Read-only DB access"
+                apiKeyExample:
+                  summary: Example of adding an API Key
+                  value:
+                    name: "External Service Key"
+                    credentialDetails:
+                      credentialType: API_KEY
+                      keyValue: "abcdef1234567890xyz"
+                      keyLocation: HEADER
+                      keyName: "X-Service-Key"
+        responses:
+          '201':
+            description: Credential successfully created.
+            content:
+              application/json:
+                schema:
+                  # Still useful to return the created object (masked) as confirmation
+                  $ref: '#/components/schemas/AgentCredentialResponse'
+          '400':
+            $ref: '#/components/responses/BadRequestError' # Invalid input
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError' # Agent not found
+          '500':
+            $ref: '#/components/responses/InternalServerError'
+        security:
+          - OAuth2Security: [write:agent_credentials]
+          - ApiKeyAuth: []
+
+  /agents/{agent-id}/credentials/{credential-id}:
+    parameters:
+      - name: agent-id
+        in: path
+        required: true
+        description: The unique identifier of the AI Agent.
+        schema:
+          type: string
+          example: "agent-f3b4c1a9"
+      - name: credential-id
+        in: path
+        required: true
+        description: The unique identifier of the credential to update.
+        schema:
+          type: string
+          example: "cred-e5d8a0b7"
+    # GET operation removed
+    put:
+      tags:
+        - Agent Credentials
+      summary: Update a specific credential for an agent
+      description: |
+        Updates an existing credential associated with the AI Agent.
+        The entire credential object (matching the `credential-id`) should be provided.
+        The `credentialType` in the request body *must* match the existing credential's type. You cannot change the type using PUT.
+        <b>Scope required:</b> `internal_org_agent_mgt_update`
+      operationId: updateAgentCredential
+      requestBody:
+        description: The updated credential object. `credentialType` must match the existing credential.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CredentialInput' # Use the input schema
+            examples:
+              updateSecretExample:
+                summary: Example of updating a Secret
+                value:
+                  name: "Database Password (Updated)" # Name update allowed
+                  credentialDetails:
+                    credentialType: SECRET # Must match existing type
+                    secretValue: "new-s3cur3-p@ssw0rd"
+                    description: "Read-only DB access - rotation 2024"
+      responses:
+        '200':
+          description: Credential updated successfully.
+          content:
+            application/json:
+              schema:
+                # Still useful to return the updated object (masked) as confirmation
+                $ref: '#/components/schemas/AgentCredentialResponse'
+        # Alternative 204 response for PUT if you don't want to return the body:
+        # '204':
+        #  description: Credential updated successfully. No content returned.
+        '400':
+          $ref: '#/components/responses/BadRequestError' # Invalid input or type mismatch
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError' # Agent or Credential not found
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - OAuth2Security: [write:agent_credentials]
+        - ApiKeyAuth: []
+      # DELETE operation removed
+
+components:
+  schemas:
+    # --- Core Agent Schema (used in responses and GET) ---
+    Agent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the agent (usually assigned by the server).
+          readOnly: true
+          example: 'a1b2c3d4-e5f6-7890-1234-567890abcdef'
+        name:
+          type: string
+          description: Human-readable name of the agent.
+          example: "Gardio Hotel Booking Assistant"
+        description:
+          type: string
+          description: A human-readable description of the agent.
+          example: "Helps users interact with the Gardio Hotels booking system."
+        version:
+          type: string
+          description: The version of the agent-format is up to the provider.
+          example: "1.2.0"
+        url:
+          type: string
+          format: url
+          description: A URL to the address the agent is hosted at (e.g., its API endpoint).
+          example: 'https://api.gardiohotels.com/booking/v1' # Example, might differ per agent
+        owner:
+          type: string
+          format: uuid
+          description: The service provider or organization behind the agent (referencing a Provider ID).
+          example: 'f0e9d8c7-b6a5-4321-fedc-ba9876543210'
+        createdAt:
+           type: string
+           format: date-time
+           description: Timestamp when the agent was created.
+           readOnly: true
+        updatedAt:
+           type: string
+           format: date-time
+           description: Timestamp when the agent was last updated.
+           readOnly: true
+      required:
+        - id
+        - name
+        - description
+
+    # --- Schema for Creating an Agent (POST Request Body) ---
+    AgentCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Human-readable name of the agent.
+          example: "Gardio Hotel Booking Assistant"
+        description:
+          type: string
+          description: A human-readable description of the agent.
+          example: "Helps users interact with the Gardio Hotels booking system."
+        version:
+          type: string
+          description: The version of the agent-format.
+          example: "1.2.0"
+        url:
+          type: string
+          format: url
+          description: A URL to the agent's endpoint (optional).
+          example: 'https://api.gardiohotels.com/booking/v1'
+        owner:
+          type: string
+          format: uuid
+          description: The service provider or organization behind the agent (optional).
+          example: 'f0e9d8c7-b6a5-4321-fedc-ba9876543210'
+      required:
+        - name
+        - description
+        - credential
+        - version
+
+    # --- Schema for Updating an Agent (PATCH Request Body) ---
+    AgentUpdateRequest:
+      type: object
+      description: Properties to update for an existing agent. All fields are optional.
+      properties:
+        name:
+          type: string
+          description: New human-readable name of the agent.
+          example: "Gardio Hotel Booking Assistant V2"
+        description:
+          type: string
+          description: Updated human-readable description.
+          example: "Enhanced assistant for Gardio Hotels booking system, now with flight integration."
+        version:
+          type: string
+          description: Updated version of the agent-format.
+          example: "1.3.0"
+        url:
+          type: string
+          format: url
+          description: Updated URL to the agent's endpoint.
+          example: 'https://api.gardiohotels.com/booking/v2'
+        owner:
+          type: string
+          format: uuid
+          description: Change the owner/provider of the agent.
+          example: '98765432-10fe-dcba-0987-654321fedcba'
+      minProperties: 1
+
+    # --- WSO2-Style Error Response Schema ---
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          description: An internal application-specific error code for the category of error.
+          example: "AGT-60001"
+        message:
+          type: string
+          description: A human-readable error message providing a summary of the error.
+          example: "Invalid Input."
+        description:
+          type: string
+          description: A detailed description of the error.
+          example: "The 'name' field cannot be empty."
+        traceId:
+          type: string
+          format: uuid
+          description: A unique correlation ID that identifies the specific request.
+          example: "e0a7a2f0-148d-4e8a-b8ca-9d5a1b6a7d6e"
+      required:
+        - code
+        - message
+        - description
+        - traceId
+
+    CredentialBase:
+      type: object
+      description: |
+        Base definition for a credential which can take various forms.
+        Use the `credentialType` property to determine the specific structure.
+      required:
+        - credentialType
+      properties:
+        credentialType:
+          type: string
+          description: The type of credential being represented.
+          enum:
+            - SECRET
+            - MTLS
+            - PRIVATE_KEY_JWT
+            - OAUTH2_CLIENT_CREDENTIALS
+      discriminator:
+        propertyName: credentialType
+        mapping:
+          SECRET: '#/components/schemas/CredentialSecret'
+          MTLS: '#/components/schemas/CredentialMTLS'
+          PRIVATE_KEY_JWT: '#/components/schemas/CredentialPrivateKeyJWT'
+          OAUTH2_CLIENT_CREDENTIALS: '#/components/schemas/CredentialOAuth2ClientCredentials'
+      oneOf:
+        - $ref: '#/components/schemas/CredentialSecret'
+        - $ref: '#/components/schemas/CredentialMTLS'
+        - $ref: '#/components/schemas/CredentialPrivateKeyJWT'
+        - $ref: '#/components/schemas/CredentialOAuth2ClientCredentials'
+        
+    CredentialSecret:
+      type: object
+      allOf: # Inherit credentialType from base
+        - $ref: '#/components/schemas/CredentialBase'
+      required:
+        - secretValue
+      properties:
+        credentialType:
+          type: string
+          enum: [SECRET]
+        secretValue:
+          type: string
+          format: password
+          description: The secret value itself.
+          writeOnly: true # Relevant for input schemas
+      example:
+        credentialType: SECRET
+        secretValue: "s3cr3t-p@ssw0rd"
+
+    CredentialMTLS:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CredentialBase'
+      required:
+        - clientCertificate
+      properties:
+        credentialType:
+          type: string
+          enum: [MTLS]
+        clientCertificate:
+          type: string
+          description: The client's public certificate in PEM format.
+      example:
+        credentialType: MTLS
+        clientCertificate: "-----BEGIN CERTIFICATE-----\nMIIBIjANBgkqh...\n-----END CERTIFICATE-----"
+
+    CredentialPrivateKeyJWT:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CredentialBase'
+      required:
+        - certificate
+      properties:
+        credentialType:
+          type: string
+          enum: [PRIVATE_KEY_JWT]
+        certificate:
+          type: string
+          description: The certificate associated with the private key.
+      example:
+        credentialType: PRIVATE_KEY_JWT
+        certificate: "-----BEGIN CERTIFICATE-----\nMIIBIjANBgkqh...\n-----END CERTIFICATE-----"
+        
+    CredentialOAuth2ClientCredentials:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CredentialBase'
+      required:
+        - clientId
+        - clientSecret
+      properties:
+        credentialType:
+          type: string
+          enum: [OAUTH2_CLIENT_CREDENTIALS]
+        clientId:
+          type: string
+          description: The OAuth2 Client ID.
+        clientSecret:
+          type: string
+          format: password
+          description: The OAuth2 Client Secret.
+          writeOnly: true # Relevant for input schemas
+      example:
+        credentialType: OAUTH2_CLIENT_CREDENTIALS
+        clientId: "service-account-client"
+        clientSecret: "very-confidential-secret-string"
+
+    # --- Input Wrapper Schema (for POST/PUT request bodies) ---
+    # This remains the same.
+    CredentialInput:
+      type: object
+      description: Wrapper for creating or updating a credential, includes a user-defined name.
+      required:
+        - name
+        - credentialDetails
+      properties:
+        name:
+          type: string
+          description: A user-friendly name for the credential (e.g., 'Production DB ReadOnly', 'External Weather API Key'). Should be unique per agent.
+          example: "My Primary Secret Cred"
+        credentialDetails:
+          $ref: '#/components/schemas/CredentialBase'
+
+    # --- Output Wrapper Schema (for POST/PUT responses) ---
+    # This schema is still used for 201 and 200 responses to confirm the action.
+    # The description emphasizes that sensitive fields are masked.
+    AgentCredentialResponse:
+      type: object
+      description: Represents a credential associated with an agent, returned in responses after creation or update. Sensitive fields are omitted or masked.
+      required:
+        - credentialId
+        - name
+        - credentialType
+      properties:
+        credentialId:
+          type: string
+          description: The unique server-assigned identifier for this credential.
+          readOnly: true
+          example: "cred-e5d8a0b7"
+        name:
+          type: string
+          description: The user-friendly name assigned to the credential.
+          readOnly: true
+          example: "External Weather API Key"
+        credentialType:
+          type: string
+          description: The type of credential. Determines which other fields are present.
+          readOnly: true
+          enum:
+            - SECRET
+            - MTLS
+            - PRIVATE_KEY_JWT
+            - OAUTH2_CLIENT_CREDENTIALS
+      # We still use allOf with the base to leverage the discriminator for tooling,
+      # even though sensitive fields should be filtered by the backend.
+      allOf:
+        - $ref: '#/components/schemas/CredentialBase'
+      # Example for a masked Secret response:
+      example:
+        credentialType: SECRET
+        description: "Read-only DB access"
+        # Note: `secretValue` is intentionally omitted/masked
+
+  # --- Reusable Responses using ErrorResponse schema ---
+  responses:
+    BadRequestError:
+      description: Bad Request. The request could not be understood due to malformed syntax or invalid data.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            InvalidInput:
+              summary: Example for invalid input data
+              value:
+                code: "AGT-60001"
+                message: "Invalid Input."
+                description: "One or more attribute values required for agent creation are invalid or missing."
+                traceId: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+
+    UnauthorizedError:
+      description: Unauthorized. Authentication credentials required or provided credentials are invalid.
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            AuthFailure:
+              summary: Example for authentication failure
+              value:
+                code: "AGT-90001" # Example code
+                message: "Authentication Failure."
+                description: "The provided access token is missing, expired, or invalid."
+                traceId: "b2c3d4e5-f6a7-8901-2345-67890abcdef12"
+
+    ForbiddenError:
+      description: Forbidden. The authenticated client does not have sufficient permissions (scopes).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            InsufficientScope:
+              summary: Example for insufficient scope
+              value:
+                code: "AGT-90002" # Example code
+                message: "Authorization Failure."
+                description: "The client does not possess the required scope ('agents:write') to create an agent."
+                traceId: "c3d4e5f6-a7b8-9012-3456-7890abcdef123"
+
+    NotFoundError:
+      description: Not Found. The requested resource could not be found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            AgentNotFound:
+              summary: Example when a specific agent is not found
+              value:
+                code: "AGT-70001" # Example code
+                message: "Resource Not Found."
+                description: "The agent with the specified ID 'a1b2c3d4-e5f6-7890-1234-567890abcdef' does not exist."
+                traceId: "d4e5f6a7-b8c9-0123-4567-890abcdef1234"
+
+    InternalServerError:
+      description: Internal Server Error. An unexpected condition was encountered on the server.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            ServerError:
+              summary: Example for a generic server error
+              value:
+                code: "AGT-10001" # Example code
+                message: "Internal Server Error."
+                description: "An unexpected error occurred while processing the request. Please contact support."
+                traceId: "e5f6a7b8-c9d0-1234-5678-90abcdef12345"
+tags:
+  - name: Agents
+    description: Operations related to agents
