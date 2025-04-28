@@ -38,6 +38,7 @@
     <modules>
         <module>components/org.wso2.carbon.identity.agent.core</module>
         <module>components/org.wso2.carbon.identity.agent.endpoint</module>
+        <module>components/org.wso2.carbon.identity.api.agent</module>
     </modules>
 
     <dependencyManagement>
@@ -47,6 +48,21 @@
                 <groupId>org.wso2.eclipse.osgi</groupId>
                 <artifactId>org.eclipse.osgi.services</artifactId>
                 <version>${equinox.osgi.services.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.utils</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.user.core</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.core</artifactId>
+                <version>${carbon.kernel.version}</version>
             </dependency>
 
             <!-- Orbit dependencies -->
@@ -61,6 +77,7 @@
                 <version>${org.apache.cxf.version}</version>
             </dependency>
 
+
             <!-- Other library dependencies -->
             <dependency>
                 <groupId>log4j</groupId>
@@ -73,6 +90,23 @@
                 <version>${servlet-api.version}</version>
             </dependency>
 
+            <!-- Carbon Identity Framework dependencies -->
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.core</artifactId>
+                <version>${carbon.identity.framework.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>jcl-over-slf4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>log4j-over-slf4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
             <!-- Carbon Identity Inbound Authentication OAuth dependency -->
             <dependency>
                 <groupId>org.wso2.carbon.identity.inbound.auth.oauth2</groupId>
@@ -81,13 +115,19 @@
                 <scope>provided</scope>
             </dependency>
 
+            <!--Swagger Dependencies-->
+            <dependency>
+                <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                <artifactId>jackson-jaxrs-json-provider</artifactId>
+                <version>${com.fasterxml.jackson.version}</version>
+            </dependency>
+
             <!--Test Dependencies-->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
@@ -117,6 +157,17 @@
                 <artifactId>javaee-web-api</artifactId>
                 <version>${javaee.web.api.version}</version>
                 <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.ws.rs</groupId>
+                <artifactId>javax.ws.rs-api</artifactId>
+                <version>${javax.ws.rs-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-jaxrs</artifactId>
+                <version>${swagger-jaxrs.version}</version>
             </dependency>
 
             <!-- Pax Logging -->
@@ -320,6 +371,18 @@
 
 
     <properties>
+        <!-- Carbon kernel version -->
+        <carbon.kernel.version>4.10.26</carbon.kernel.version>
+        <carbon.kernel.feature.version>4.10.22</carbon.kernel.feature.version>
+        <carbon.kernel.imp.pkg.version.range>[4.10.22, 5.0.0)</carbon.kernel.imp.pkg.version.range>
+        <carbon.kernel.registry.imp.pkg.version.range>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version.range>
+
+        <!-- Carbon Identity Framework version -->
+        <carbon.identity.framework.version>7.8.3</carbon.identity.framework.version>
+        <carbon.identity.framework.imp.pkg.version.range>[5.25.234, 8.0.0)
+        </carbon.identity.framework.imp.pkg.version.range>
+        <identity.oauth.xacml.version.range>[2.0.0, 3.0.0)</identity.oauth.xacml.version.range>
+
         <!-- Identity Inbound Auth OAuth Version-->
         <identity.inbound.auth.oauth.exp.pkg.version>${carbon.identity.oauth.version}</identity.inbound.auth.oauth.exp.pkg.version>
         <identity.inbound.auth.oauth.imp.pkg.version.range>[6.2.0, 8.0.0)</identity.inbound.auth.oauth.imp.pkg.version.range>
@@ -333,6 +396,13 @@
         <servlet-api.version>2.5</servlet-api.version>
         <imp.pkg.version.javax.servlet>[2.6.0, 3.0.0)</imp.pkg.version.javax.servlet>
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
+
+        <!--Swagger Dependency Version-->
+        <jackson-databind.version>2.16.1</jackson-databind.version>
+        <com.fasterxml.jackson.version>2.16.1</com.fasterxml.jackson.version>
+        <spring-web.version>4.3.29.RELEASE</spring-web.version>
+        <swagger-jaxrs.version>1.6.2</swagger-jaxrs.version>
+        <com.fasterxml.jackson.databind.version.range>[2.13.0, 3.0.0)</com.fasterxml.jackson.databind.version.range>
 
         <!-- Commons -->
         <commons-lang.wso2.version>2.6.0.wso2v1</commons-lang.wso2.version>
@@ -399,5 +469,9 @@
         <carbon.database.utils.version>2.0.11</carbon.database.utils.version>
 
         <carbon.identity.oauth.version>7.0.275</carbon.identity.oauth.version>
+
+        <mavan.findbugsplugin.exclude.file>findbugs-exclude-filter.xml</mavan.findbugsplugin.exclude.file>
+        <maven.findbugsplugin.version>3.0.5</maven.findbugsplugin.version>
+        <maven.checkstyleplugin.excludes>**/gen/**/*</maven.checkstyleplugin.excludes>
     </properties>
 </project>
