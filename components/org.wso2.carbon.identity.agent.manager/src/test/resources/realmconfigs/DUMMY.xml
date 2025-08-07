@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
+  ~
+  ~ WSO2 LLC. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+<UserStoreManager class="org.wso2.carbon.user.core.jdbc.UniqueIDJDBCUserStoreManager">
+      <Property name="url">jdbc:mysql://localhost:3306/dummy</Property>
+      <Property name="userName">dummy</Property>
+      <Property name="password">dummy</Property>
+      <Property name="driverName">com.mysql.jdbc.Driver</Property>
+      <Property name="Disabled">false</Property>
+      <Property name="ReadOnly">false</Property>
+      <Property name="ReadGroups">true</Property>
+      <Property name="isConsumerUserstore">true</Property>
+      <Property name="WriteGroups">true</Property>
+      <Property name="UsernameJavaRegEx">[a-zA-Z0-9._\-|//]{3,30}$</Property>
+      <Property name="UsernameJavaScriptRegEx">^[\S]{5,30}$</Property>
+      <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated.</Property>
+      <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
+      <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
+      <Property name="PasswordJavaRegExViolationErrorMsg">Password pattern policy violated</Property>
+      <Property name="RolenameJavaRegEx">[a-zA-Z0-9._\-|//]{3,30}$</Property>
+      <Property name="RolenameJavaScriptRegEx">^[\S]{5,30}$</Property>
+      <Property name="CaseInsensitiveUsername">false</Property>
+      <Property name="IsBulkImportSupported">false</Property>
+      <Property name="PasswordDigest">SHA-256</Property>
+      <Property name="MultiAttributeSeparator">,</Property>
+      <Property name="StoreSaltedPassword">true</Property>
+      <Property name="MaxUserNameListLength">100</Property>
+      <Property name="MaxRoleNameListLength">100</Property>
+      <Property name="UserRolesCacheEnabled">true</Property>
+      <Property name="UserNameUniqueAcrossTenants">false</Property>
+      <Property name="validationQuery"/>
+      <Property name="validationInterval"/>
+      <Property name="defaultAutoCommit"/>
+      <Property name="defaultReadOnly"/>
+      <Property name="defaultTransactionIsolation"/>
+      <Property name="defaultCatalog"/>
+      <Property name="initialSize"/>
+      <Property name="testOnReturn">false</Property>
+      <Property name="testOnBorrow">false</Property>
+      <Property name="validatorClassName"/>
+      <Property name="numTestsPerEvictionRun"/>
+      <Property name="accessToUnderlyingConnectionAllowed"/>
+      <Property name="removeAbandoned">false</Property>
+      <Property name="removeAbandonedTimeout"/>
+      <Property name="logAbandoned">false</Property>
+      <Property name="connectionProperties"/>
+      <Property name="initSQL"/>
+      <Property name="jdbcInterceptors"/>
+      <Property name="jmxEnabled">true</Property>
+      <Property name="fairQueue">true</Property>
+      <Property name="abandonWhenPercentageFull"/>
+      <Property name="maxAge"/>
+      <Property name="useEquals">true</Property>
+      <Property name="suspectTimeout"/>
+      <Property name="validationQueryTimeout"/>
+      <Property name="alternateUsernameAllowed">false</Property>
+      <Property name="commitOnReturn">false</Property>
+      <Property name="rollbackOnReturn">false</Property>
+      <Property name="CountRetrieverClass">org.wso2.carbon.identity.user.store.count.jdbc.JDBCUserStoreCountRetriever</Property>
+      <Property name="ClaimOperationsSupported">true</Property>
+      <Property name="DomainName">DUMMY</Property>
+      <Property name="Description"/>
+</UserStoreManager>
