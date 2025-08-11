@@ -17,6 +17,13 @@
     <name>WSO2 Agent module</name>
     <url>http://wso2.org</url>
 
+    <scm>
+        <url>https://github.com/wso2-extensions/identity-ai-agent.git</url>
+        <developerConnection>scm:git:https://github.com/wso2-extensions/identity-ai-agent.git</developerConnection>
+        <connection>scm:git:https://github.com/wso2-extensions/identity-ai-agent.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+
     <modules>
         <module>components/org.wso2.carbon.identity.agent.manager</module>
         <module>features/org.wso2.carbon.identity.agent.manager.server.feature</module>
