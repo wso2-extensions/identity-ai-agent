@@ -126,7 +126,7 @@ public class AgentUserStoreManagerServiceComponent {
             agentTenantUserStoreConfig.setDomainId(IdentityUtil.getAgentIdentityUserstoreName());
 
             // Check agent userstore is already added
-            if (Files.exists(Util.getAgentUSConfigPath())) {
+            if (Files.exists(Util.getSuperTenantAgentUSPath(IdentityUtil.getAgentIdentityUserstoreName()))) {
                 return;
             }
             AgentUserStoreManagerHolder.getUserStoreConfigService().addUserStore(agentTenantUserStoreConfig);

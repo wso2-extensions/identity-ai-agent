@@ -24,7 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Util class for business user userstore.
+ * Util class for agent userstore.
  */
 public class Util {
 
@@ -33,13 +33,25 @@ public class Util {
     }
 
     /**
-     * Get business user userstore configuration path.
+     * Get agent userstore configuration path.
      *
-     * @return business user userstore configuration path.
+     * @return agent userstore configuration path.
      */
     public static Path getAgentUSConfigPath() {
 
         return Paths.get(CarbonUtils.getCarbonConfigDirPath(), "identity", "agent" ,
                 Constants.USERSTORE_CONFIG_FILE);
+    }
+
+    /**
+     * Get super tenant agent userstore path.
+     *
+     * @param domainName domain name
+     * @return
+     */
+    public static Path getSuperTenantAgentUSPath(String domainName) {
+
+        return Paths.get(CarbonUtils.getCarbonHome(), "repository", "deployment" , "server", "userstores",
+                domainName + ".xml");
     }
 }

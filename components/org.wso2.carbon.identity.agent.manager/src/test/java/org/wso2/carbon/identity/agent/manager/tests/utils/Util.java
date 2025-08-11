@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Util class for business user manager tests.
+ * Util class for agent manager tests.
  */
 public class Util {
 

@@ -19,7 +19,7 @@
 package org.wso2.carbon.identity.agent.manager.utils;
 
 /**
- * Constants class for business user userstore.
+ * Constants class for agent userstore.
  */
 public class Constants {
 

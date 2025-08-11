@@ -61,7 +61,7 @@ public class AgentManagerTestBase extends PowerMockTestCase {
     }
 
     /**
-     * Build a tenant business realm config.
+     * Build a tenant agent realm config.
      *
      * @throws Exception exception.
      */
