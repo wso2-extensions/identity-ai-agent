@@ -10,7 +10,7 @@
 
     <groupId>org.wso2.carbon.identity.agent</groupId>
     <artifactId>identity-ai-agent</artifactId>
-    <version>1.0.7-SNAPSHOT</version>
+    <version>1.0.7</version>
     <packaging>pom</packaging>
     <name>WSO2 AI Agent module</name>
     <url>http://wso2.org</url>
@@ -19,7 +19,7 @@
         <url>https://github.com/wso2-extensions/identity-ai-agent.git</url>
         <developerConnection>scm:git:https://github.com/wso2-extensions/identity-ai-agent.git</developerConnection>
         <connection>scm:git:https://github.com/wso2-extensions/identity-ai-agent.git</connection>
-        <tag>HEAD</tag>
+        <tag>v1.0.7</tag>
     </scm>
 
     <modules>
