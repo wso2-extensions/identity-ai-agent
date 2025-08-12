@@ -33,4 +33,6 @@ public class Constants {
     public static final String DESCRIPTION_KEY = "Description";
     public static final String TENANT_PROPERTIES_KEY = "TenantProperties";
     public static final String TENANT_EDITABLE_PROPERTIES_KEY = "TenantEditableProperties";
+    public static final String AGENT_IDENTITY_USERSTORE_MANAGER_CLASS = "AgentIdentity.UserstoreManagerClass";
+    public static final String AGENT_IDENTITY_DATASOURCE = "AgentIdentity.Datasource";
 }

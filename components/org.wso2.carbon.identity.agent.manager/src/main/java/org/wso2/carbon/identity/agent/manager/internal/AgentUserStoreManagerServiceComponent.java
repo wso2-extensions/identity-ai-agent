@@ -53,6 +53,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static org.wso2.carbon.identity.agent.manager.utils.Constants.AGENT_IDENTITY_DATASOURCE;
+import static org.wso2.carbon.identity.agent.manager.utils.Constants.AGENT_IDENTITY_USERSTORE_MANAGER_CLASS;
+import static org.wso2.carbon.identity.core.util.IdentityCoreConstants.AGENT_IDENTITY_USERSTORE_NAME;
+import static org.wso2.carbon.identity.core.util.IdentityCoreConstants.DEFAULT_AGENT_IDENTITY_USERSTORE_NAME;
+
 /**
  * This class contains the service component of the end users store manager.
  */
@@ -68,7 +73,8 @@ public class AgentUserStoreManagerServiceComponent {
     protected void activate(ComponentContext componentContext) {
 
         try {
-            if (IdentityUtil.isAgentIdentityEnabled()) {
+            if (IdentityUtil.isAgentIdentityEnabled() && isAgentIdentityUserstoreManagerClassDefined()
+                && isAgentIdentityDatasourceDefined()) {
                 componentContext.getBundleContext().registerService(UserStoreManager.class.getName(),
                         new AgentUserStoreManager(), null);
 
@@ -182,5 +188,33 @@ public class AgentUserStoreManagerServiceComponent {
         }
 
         return propertyDTOS;
+    }
+
+    /**
+     * Checks whether the agent identity userstore manager class is explicitly defined.
+     *
+     * @return return true, if the agent identity userstore manager class is defined.
+     */
+    public static boolean isAgentIdentityUserstoreManagerClassDefined() {
+
+        String userstoreManagerClass = IdentityUtil.getProperty(AGENT_IDENTITY_USERSTORE_MANAGER_CLASS);
+        if (StringUtils.isBlank(userstoreManagerClass)) {
+            return false;
+        }
+        return AgentUserStoreManager.class.getName().equals(userstoreManagerClass);
+    }
+
+    /**
+     * Checks whether the agent identity datasource is defined.
+     *
+     * @return return true, if the agent identity datasource is defined.
+     */
+    public static boolean isAgentIdentityDatasourceDefined() {
+
+        String userstoreManagerClass = IdentityUtil.getProperty(AGENT_IDENTITY_DATASOURCE);
+        if (StringUtils.isBlank(userstoreManagerClass)) {
+            return false;
+        }
+        return true;
     }
 }
