@@ -53,6 +53,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static org.wso2.carbon.identity.agent.manager.utils.Constants.AGENT_IDENTITY_USERSTORE_MANAGER_CLASS;
+import static org.wso2.carbon.identity.core.util.IdentityCoreConstants.AGENT_IDENTITY_USERSTORE_NAME;
+import static org.wso2.carbon.identity.core.util.IdentityCoreConstants.DEFAULT_AGENT_IDENTITY_USERSTORE_NAME;
+
 /**
  * This class contains the service component of the end users store manager.
  */
@@ -68,7 +72,7 @@ public class AgentUserStoreManagerServiceComponent {
     protected void activate(ComponentContext componentContext) {
 
         try {
-            if (IdentityUtil.isAgentIdentityEnabled()) {
+            if (IdentityUtil.isAgentIdentityEnabled() && isAgentIdentityUserstoreManagerClassDefined()) {
                 componentContext.getBundleContext().registerService(UserStoreManager.class.getName(),
                         new AgentUserStoreManager(), null);
 
@@ -182,5 +186,19 @@ public class AgentUserStoreManagerServiceComponent {
         }
 
         return propertyDTOS;
+    }
+
+    /**
+     * Get the agent identity userstore manager class.
+     * If the property is not set, it will return the default agent identity userstore manager class.
+     * @return Agent identity userstore manager class.
+     */
+    public static boolean isAgentIdentityUserstoreManagerClassDefined() {
+
+        String userstoreManagerClass = IdentityUtil.getProperty(AGENT_IDENTITY_USERSTORE_MANAGER_CLASS);
+        if (StringUtils.isBlank(userstoreManagerClass)) {
+            return false;
+        }
+        return AgentUserStoreManager.class.getName().equals(userstoreManagerClass);
     }
 }
