@@ -45,18 +45,9 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.config.UserStoreConfigXMLProcessor;
 import org.wso2.carbon.user.core.util.JDBCRealmUtil;
-import org.wso2.carbon.utils.CarbonUtils;
 
 import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-
-import static org.wso2.carbon.identity.agent.manager.utils.Constants.AGENT_IDENTITY_DATASOURCE;
-import static org.wso2.carbon.identity.agent.manager.utils.Constants.AGENT_IDENTITY_USERSTORE_MANAGER_CLASS;
-import static org.wso2.carbon.identity.core.util.IdentityCoreConstants.AGENT_IDENTITY_USERSTORE_NAME;
-import static org.wso2.carbon.identity.core.util.IdentityCoreConstants.DEFAULT_AGENT_IDENTITY_USERSTORE_NAME;
 
 /**
  * This class contains the service component of the end users store manager.
@@ -79,8 +70,13 @@ public class AgentUserStoreManagerServiceComponent {
                         new AgentUserStoreManager(), null);
 
                 RealmConfiguration userRealmConfig = buildUserRealmConfig();
-                AgentUserStoreManagerHolder.setUserRealmConfig(userRealmConfig);
                 UserStoreDTO tenantUserStoreConfig = buildTenantUserStoreConfig(userRealmConfig);
+                // Update domain name with configured userstore name.
+                Map<String, String> props = userRealmConfig.getUserStoreProperties();
+                props.put(Constants.DOMAIN_NAME_KEY, IdentityUtil.getAgentIdentityUserstoreName());
+                userRealmConfig.setUserStoreProperties(props);
+                tenantUserStoreConfig.setDomainId(IdentityUtil.getAgentIdentityUserstoreName());
+                AgentUserStoreManagerHolder.setUserRealmConfig(userRealmConfig);
                 // Add agent userstore to super tenant as a secondary userstore.
                 addAgentUserStoreToSuperTenant(tenantUserStoreConfig);
                 componentContext.getBundleContext().registerService(TenantMgtListener.class.getName(),
@@ -128,8 +124,6 @@ public class AgentUserStoreManagerServiceComponent {
             PrivilegedCarbonContext.getThreadLocalCarbonContext()
                     .setTenantDomain(IdentityTenantUtil.getTenantDomain(MultitenantConstants.SUPER_TENANT_ID));
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-
-            agentTenantUserStoreConfig.setDomainId(IdentityUtil.getAgentIdentityUserstoreName());
 
             // Check agent userstore is already added
             if (Files.exists(Util.getSuperTenantAgentUSPath(IdentityUtil.getAgentIdentityUserstoreName()))) {
@@ -197,7 +191,7 @@ public class AgentUserStoreManagerServiceComponent {
      */
     public static boolean isAgentIdentityUserstoreManagerClassDefined() {
 
-        String userstoreManagerClass = IdentityUtil.getProperty(AGENT_IDENTITY_USERSTORE_MANAGER_CLASS);
+        String userstoreManagerClass = IdentityUtil.getProperty(Constants.AGENT_IDENTITY_USERSTORE_MANAGER_CLASS);
         if (StringUtils.isBlank(userstoreManagerClass)) {
             return false;
         }
@@ -211,7 +205,7 @@ public class AgentUserStoreManagerServiceComponent {
      */
     public static boolean isAgentIdentityDatasourceDefined() {
 
-        String userstoreManagerClass = IdentityUtil.getProperty(AGENT_IDENTITY_DATASOURCE);
+        String userstoreManagerClass = IdentityUtil.getProperty(Constants.AGENT_IDENTITY_DATASOURCE);
         if (StringUtils.isBlank(userstoreManagerClass)) {
             return false;
         }
