@@ -365,11 +365,6 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>annotations</artifactId>
-                <version>${findbugs.annotation.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>p6spy</groupId>
                 <artifactId>p6spy</artifactId>
                 <version>${p6spy.version}</version>
@@ -434,6 +429,12 @@
                 <groupId>org.wso2.carbon.identity.agent</groupId>
                 <artifactId>org.wso2.carbon.identity.agent.manager</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-annotations</artifactId>
+                <version>${spotbugs.annotations.version}</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -528,11 +529,6 @@
                             <SCM-Revision>${buildNumber}</SCM-Revision>
                         </instructions>
                     </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>${jacoco.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -702,11 +698,10 @@
         <identity.inbound.auth.oauth.imp.pkg.version.range>[6.2.0, 8.0.0)</identity.inbound.auth.oauth.imp.pkg.version.range>
 
         <!--Plugin Version-->
-        <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
-        <maven.bundle.plugin.version>3.2.0</maven.bundle.plugin.version>
+        <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
+        <maven.bundle.plugin.version>5.1.9</maven.bundle.plugin.version>
         <maven.war.plugin.version>3.2.2</maven.war.plugin.version>
         <build.helper.maven.plugin.version>1.8</build.helper.maven.plugin.version>
-        <maven.findbugsplugin.version>3.0.5</maven.findbugsplugin.version>
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
         <maven.checkstyleplugin.version>3.1.2</maven.checkstyleplugin.version>
         <os-maven-plugin.version>1.6.2</os-maven-plugin.version>
@@ -784,9 +779,9 @@
         <rest.assured.version>4.2.0</rest.assured.version>
 
         <!-- Spotbugs versions -->
-        <spotbugs-maven-plugin.version>4.1.3</spotbugs-maven-plugin.version>
+        <spotbugs-maven-plugin.version>4.9.8.2</spotbugs-maven-plugin.version>
         <findsecbugs-plugin.version>1.10.1</findsecbugs-plugin.version>
-        <findbugs.annotation.version>3.0.1</findbugs.annotation.version>
+        <spotbugs.annotations.version>4.9.8</spotbugs.annotations.version>
         <p6spy.version>3.9.1</p6spy.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
 
