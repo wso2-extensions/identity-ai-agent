@@ -24,13 +24,13 @@ import org.wso2.carbon.identity.agent.manager.utils.Constants;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.powermock.reflect.Whitebox;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -59,15 +59,15 @@ public class AgentUserStoreManagerTest extends AgentManagerTestBase {
     @Test
     public void testMandatoryDefaultProperties() {
 
-        AgentUserStoreManager AgentUserStoreManager = new AgentUserStoreManager();
+        AgentUserStoreManager agentUserStoreManager = new AgentUserStoreManager();
 
-        Property[] mandatoryProperties = AgentUserStoreManager
+        Property[] mandatoryProperties = agentUserStoreManager
                 .getDefaultUserStoreProperties()
                 .getMandatoryProperties();
         StringJoiner sj = new StringJoiner(",");
         Arrays.stream(mandatoryProperties).forEach(property -> sj.add(property.getName()));
 
-        Assert.assertEquals(AgentUserStoreManager.getDefaultUserStoreProperties().getMandatoryProperties()
+        Assert.assertEquals(agentUserStoreManager.getDefaultUserStoreProperties().getMandatoryProperties()
                         .length, 0, "No mandatory properties should be defined. " + sj
                 + ". If the defined mandatory properties are " + "tenant configurable update the test case.");
     }
@@ -84,9 +84,11 @@ public class AgentUserStoreManagerTest extends AgentManagerTestBase {
         injectNonAllowedTenantProps(tenantRealmConfig);
         removeAllowedTenantProp(tenantRealmConfig);
 
-        AgentUserStoreManager AgentUserStoreManager = new AgentUserStoreManager();
-        RealmConfiguration mergedTenantRealmConfig = Whitebox.invokeMethod(AgentUserStoreManager,
-                "buildRealmConfig", tenantRealmConfig.cloneRealmConfiguration());
+        Method buildRealmConfigMethod = AgentUserStoreManager.class.getDeclaredMethod(
+                "buildRealmConfig", RealmConfiguration.class);
+        buildRealmConfigMethod.setAccessible(true);
+        RealmConfiguration mergedTenantRealmConfig = (RealmConfiguration) buildRealmConfigMethod.invoke(
+                null, tenantRealmConfig.cloneRealmConfiguration());
 
         /* Currently the test util XMLProcessorUtil only sets the userstore related realm
          * properties. Most of the other realm properties are added from the primary realm
@@ -128,8 +130,10 @@ public class AgentUserStoreManagerTest extends AgentManagerTestBase {
         RealmConfiguration tenantRealmConfig = getTenantRealmConfig();
         injectNonAllowedTenantProps(agentRealmConfig);
 
-        AgentUserStoreManager AgentUserStoreManager = new AgentUserStoreManager();
-        Whitebox.invokeMethod(AgentUserStoreManager, "buildTenantProperties",
+        Method buildTenantPropertiesMethod = AgentUserStoreManager.class.getDeclaredMethod(
+                "buildTenantProperties", Map.class, Map.class, int.class);
+        buildTenantPropertiesMethod.setAccessible(true);
+        buildTenantPropertiesMethod.invoke(null,
                 agentRealmConfig.getUserStoreProperties(),
                 tenantRealmConfig.getUserStoreProperties(), TENANT_ID);
 

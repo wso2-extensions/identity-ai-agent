@@ -329,18 +329,6 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-module-testng</artifactId>
-                <version>${org.powermock.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-api-mockito</artifactId>
-                <version>${org.powermock.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
@@ -363,11 +351,6 @@
                 <artifactId>rest-assured</artifactId>
                 <version>${rest.assured.version}</version>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>annotations</artifactId>
-                <version>${findbugs.annotation.version}</version>
             </dependency>
             <dependency>
                 <groupId>p6spy</groupId>
@@ -435,6 +418,12 @@
                 <artifactId>org.wso2.carbon.identity.agent.manager</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-annotations</artifactId>
+                <version>${spotbugs.annotations.version}</version>
+                <scope>provided</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -489,8 +478,8 @@
                     <version>${maven.compiler.plugin.version}</version>
                     <configuration>
                         <encoding>UTF-8</encoding>
-                        <source>1.8</source>
-                        <target>1.8</target>
+                        <source>21</source>
+                        <target>21</target>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -528,11 +517,6 @@
                             <SCM-Revision>${buildNumber}</SCM-Revision>
                         </instructions>
                     </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>${jacoco.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -702,11 +686,10 @@
         <identity.inbound.auth.oauth.imp.pkg.version.range>[6.2.0, 8.0.0)</identity.inbound.auth.oauth.imp.pkg.version.range>
 
         <!--Plugin Version-->
-        <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
-        <maven.bundle.plugin.version>3.2.0</maven.bundle.plugin.version>
+        <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
+        <maven.bundle.plugin.version>5.1.9</maven.bundle.plugin.version>
         <maven.war.plugin.version>3.2.2</maven.war.plugin.version>
         <build.helper.maven.plugin.version>1.8</build.helper.maven.plugin.version>
-        <maven.findbugsplugin.version>3.0.5</maven.findbugsplugin.version>
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
         <maven.checkstyleplugin.version>3.1.2</maven.checkstyleplugin.version>
         <os-maven-plugin.version>1.6.2</os-maven-plugin.version>
@@ -769,24 +752,22 @@
         <carbon.config.version>2.1.14</carbon.config.version>
 
         <!-- Unit test versions -->
-        <testng.version>6.9.10</testng.version>
+        <testng.version>7.7.0</testng.version>
         <jacoco.version>0.8.2</jacoco.version>
-        <org.powermock.version>1.7.4</org.powermock.version>
         <junit.version>4.13.2</junit.version>
         <h2database.version>2.1.210</h2database.version>
-        <mockito-core.version>4.6.1</mockito-core.version>
-        <maven.surefire.plugin.version>2.22.0</maven.surefire.plugin.version>
+        <mockito-core.version>5.1.3</mockito-core.version>
+        <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
         <mockito.version>5.3.1</mockito.version>
         <mockito-testng.version>0.5.2</mockito-testng.version>
-        <mockito-powermock.version>1.10.19</mockito-powermock.version>
 
         <!-- Rest API test versions -->
         <rest.assured.version>4.2.0</rest.assured.version>
 
         <!-- Spotbugs versions -->
-        <spotbugs-maven-plugin.version>4.1.3</spotbugs-maven-plugin.version>
+        <spotbugs-maven-plugin.version>4.9.8.2</spotbugs-maven-plugin.version>
         <findsecbugs-plugin.version>1.10.1</findsecbugs-plugin.version>
-        <findbugs.annotation.version>3.0.1</findbugs.annotation.version>
+        <spotbugs.annotations.version>4.9.8</spotbugs.annotations.version>
         <p6spy.version>3.9.1</p6spy.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
 

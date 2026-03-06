@@ -20,7 +20,6 @@ package org.wso2.carbon.identity.agent.manager.tests;
 import org.wso2.carbon.identity.agent.manager.tests.utils.Util;
 import org.wso2.carbon.identity.agent.manager.utils.Constants;
 import org.apache.commons.lang.StringUtils;
-import org.powermock.modules.testng.PowerMockTestCase;
 import org.wso2.carbon.identity.user.store.configuration.dto.UserStoreDTO;
 import org.wso2.carbon.user.api.RealmConfiguration;
 
@@ -31,7 +30,7 @@ import java.util.List;
 /**
  * Base test class for agent manager related tests.
  */
-public class AgentManagerTestBase extends PowerMockTestCase {
+public class AgentManagerTestBase {
 
     private static final String TENANT_REALM_CONFIG_PATH = "src/test/resources/realmconfigs/USER_TENANT.xml";
     private static final String GLOBAL_REALM_CONFIG_PATH = "src/test/resources/realmconfigs/AGENT.xml";
